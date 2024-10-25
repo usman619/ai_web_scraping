@@ -1,5 +1,5 @@
 import streamlit as st
-from scrape import scrape_website
+from scrape import scrape_website, split_dom_content, clean_body_content, extract_body_content
 
 st.title("AI Web Scraper")
 url = st.text_input("Enter your URL")
@@ -7,4 +7,20 @@ url = st.text_input("Enter your URL")
 if st.button("Scrape Site"):
     st.write("Scraping the website")
     result = scrape_website(url)
-    print(result)
+    body_content = extract_body_content(result)
+    clean_content = clean_body_content(body_content)
+
+    st.session_state.dom_content = clean_content
+
+    with st.expander("View DOM content"):
+        st.text_area("DOM content", clean_content, height=300)
+
+
+if "dom_content" in st.session_state:
+    parse_description = st.text_area("Descrive what you want to parse?")
+
+    if st.button("Parse Content"):
+        if parse_description:
+            st.write("Parsing the content")
+
+            dom_chunks = split_dom_content(st.session_state.dom_content)
